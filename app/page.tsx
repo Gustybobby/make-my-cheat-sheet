@@ -9,7 +9,7 @@ export default function Home() {
   const [cols, setCols] = useState<number>(3);
   const [pageRemoves, setPageRemoves] = useState<string[]>([]);
   return (
-    <section className="p-4 flex flex-col items-center justify-center h-screen">
+    <section className="p-4 flex flex-col items-center justify-center min-h-screen">
       <h1 className="text-5xl font-bold text-center mb-4">Create Cheatsheet</h1>
       <input
         value={undefined}
