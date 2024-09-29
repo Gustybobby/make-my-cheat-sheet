@@ -1,14 +1,13 @@
 import { PageSizes, PDFDocument } from "pdf-lib";
 
 export async function createCheatsheet(
-  pdfFile: File,
+  pdfFiles: File[],
   width: number,
   height: number,
-  removePages: number[],
+  removePages: number[][],
 ): Promise<PDFDocument | null> {
-  const buffer = await pdfFile.arrayBuffer();
-  const pdfRef = await PDFDocument.load(buffer);
-  const refCount = pdfRef.getPageCount() - removePages.length;
+  const pdfRef = await mergePDFFiles(pdfFiles, removePages);
+  const refCount = pdfRef.getPageCount();
 
   if (refCount === 0) {
     return null;
@@ -17,9 +16,7 @@ export async function createCheatsheet(
 
   const embedPages = await pdfDoc.embedPdf(
     pdfRef,
-    Array.from(Array(refCount + removePages.length).keys()).filter(
-      (num) => !removePages.includes(num + 1),
-    ),
+    Array.from(Array(refCount).keys()),
   );
 
   const pageCount = Math.ceil(refCount / (width * height));
@@ -47,4 +44,27 @@ export async function createCheatsheet(
   }
 
   return pdfDoc;
+}
+
+async function mergePDFFiles(files: File[], removePages: number[][]) {
+  const mergedPdf = await PDFDocument.create();
+
+  let i = 0;
+  for (const file of files) {
+    const document = await PDFDocument.load(await file.arrayBuffer());
+
+    const copiedPages = await mergedPdf.copyPages(
+      document,
+      document.getPageIndices(),
+    );
+    copiedPages.forEach((page, idx) => {
+      if (removePages[i].includes(idx + 1)) {
+        return;
+      }
+      mergedPdf.addPage(page);
+    });
+    i++;
+  }
+
+  return mergedPdf;
 }
