@@ -1,7 +1,7 @@
 "use client";
 
-import { createCheatsheet } from "@/scripts/compress-pdf";
 import { useState } from "react";
+import { createCheatsheet } from "@/scripts/compress-pdf";
 
 export default function Home() {
   const [files, setFiles] = useState<File[]>([]);
@@ -9,8 +9,11 @@ export default function Home() {
   const [cols, setCols] = useState<number>(3);
   const [pageRemoves, setPageRemoves] = useState<string[]>([]);
   return (
-    <section className="p-4 flex flex-col items-center justify-center min-h-screen">
-      <h1 className="text-5xl font-bold text-center mb-4">Create Cheatsheet</h1>
+    <section className="p-4 flex flex-col items-center justify-center min-h-screen bg-zinc-950 text-white">
+      <h1 className="text-5xl font-extrabold text-center mb-4">
+        Create Cheatsheet
+      </h1>
+      <p className="mb-2">PDF only</p>
       <input
         value={undefined}
         type="file"
@@ -28,7 +31,7 @@ export default function Home() {
       <ul className="my-2 space-y-1 text-left">
         {files?.map((file, idx) => (
           <li key={idx}>
-            <div className="font-semibold">
+            <div className="font-semibold text-white">
               {idx + 1}. {file.name}
             </div>
             <div className="flex flex-col items-center">
@@ -50,8 +53,7 @@ export default function Home() {
           </li>
         ))}
       </ul>
-      <p className="my-2">PDF only</p>
-      <div className="grid grid-cols-2 gap-2">
+      <div className="grid grid-cols-2 gap-2 mb-2">
         <label>Rows</label>
         <input
           value={rows}
