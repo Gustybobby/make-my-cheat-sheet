@@ -7,7 +7,9 @@ export default function Home() {
   const [files, setFiles] = useState<File[]>([]);
   const [rows, setRows] = useState<number>(4);
   const [cols, setCols] = useState<number>(3);
-  const [pageRemoves, setPageRemoves] = useState<string[]>([]);
+  const [pageMods, setPageMods] = useState<string[]>([]);
+  const [modRemoves, setModRemoves] = useState<boolean[]>([]);
+
   return (
     <section className="p-4 flex flex-col items-center justify-center min-h-screen bg-zinc-950 text-white">
       <h1 className="text-5xl font-extrabold text-center mb-4">
@@ -24,27 +26,46 @@ export default function Home() {
             return files;
           }
           setFiles((files) => [...files, file]);
-          setPageRemoves((pageRemoves) => [...pageRemoves, ""]);
+          setPageMods((pageMods) => [...pageMods, ""]);
+          setModRemoves((modRemoves) => [...modRemoves, true]);
         }}
         accept="application/pdf"
       />
-      <ul className="my-2 space-y-1 text-left">
+      <ul className="my-2 text-left">
         {files?.map((file, idx) => (
-          <li key={idx}>
+          <li key={idx} className="border border-white p-4">
             <div className="font-semibold text-white">
               {idx + 1}. {file.name}
             </div>
             <div className="flex flex-col items-center">
-              <label className="my-2">
-                Remove Page (comma seperated i.e. 1,2,3)
+              <button
+                className={
+                  "my-2 p-2 rounded-lg font-semibold transition-colors " +
+                  (modRemoves[idx]
+                    ? "bg-red-600 hover:bg-red-500"
+                    : "bg-green-600 hover:bg-green-500")
+                }
+                onClick={() =>
+                  setModRemoves((modRemoves) => {
+                    const newModRemoves = [...modRemoves];
+                    newModRemoves[idx] = !newModRemoves[idx];
+                    return newModRemoves;
+                  })
+                }
+              >
+                {modRemoves[idx] ? "Remove Mode" : "Select Mode"}
+              </button>
+              <label className="mb-2">
+                {modRemoves[idx] ? "Remove" : "Select"} Page (comma seperated
+                i.e. 1,2,3)
               </label>
               <input
-                value={pageRemoves[idx]}
+                value={pageMods[idx]}
                 onChange={(e) =>
-                  setPageRemoves((pageRemoves) => {
-                    const newRem = [...pageRemoves];
-                    newRem[idx] = e.target.value;
-                    return newRem;
+                  setPageMods((pageMods) => {
+                    const newMods = [...pageMods];
+                    newMods[idx] = e.target.value;
+                    return newMods;
                   })
                 }
                 className="bg-white text-black w-64 text-center"
@@ -84,12 +105,13 @@ export default function Home() {
               files,
               cols,
               rows,
-              pageRemoves.map((pageRemove) =>
-                pageRemove
+              pageMods.map((pageMod) =>
+                pageMod
                   .split(",")
                   .map(Number)
                   .filter((num) => !isNaN(num)),
               ),
+              modRemoves,
             );
             if (!pdf) {
               return;

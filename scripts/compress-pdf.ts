@@ -4,9 +4,10 @@ export async function createCheatsheet(
   pdfFiles: File[],
   width: number,
   height: number,
-  removePages: number[][],
+  modPages: number[][],
+  modRemoves: boolean[],
 ): Promise<PDFDocument | null> {
-  const pdfRef = await mergePDFFiles(pdfFiles, removePages);
+  const pdfRef = await mergePDFFiles(pdfFiles, modPages, modRemoves);
   const refCount = pdfRef.getPageCount();
 
   if (refCount === 0) {
@@ -46,7 +47,11 @@ export async function createCheatsheet(
   return pdfDoc;
 }
 
-async function mergePDFFiles(files: File[], removePages: number[][]) {
+async function mergePDFFiles(
+  files: File[],
+  modPages: number[][],
+  modRemoves: boolean[],
+) {
   const mergedPdf = await PDFDocument.create();
 
   let i = 0;
@@ -58,7 +63,10 @@ async function mergePDFFiles(files: File[], removePages: number[][]) {
       document.getPageIndices(),
     );
     copiedPages.forEach((page, idx) => {
-      if (removePages[i].includes(idx + 1)) {
+      if (
+        (modPages[i].includes(idx + 1) && modRemoves[i]) ||
+        (!modPages[i].includes(idx + 1) && !modRemoves[i])
+      ) {
         return;
       }
       mergedPdf.addPage(page);
